@@ -61,7 +61,7 @@ client.on('message', async (channel, tags, message, self) => {
 });
 
 (async() => {
-	const res = await fetch(process.env.WEBHOOK_URL, {
+	const res = await fetch(process.env.MONITOR_WEBHOOK, {
 		method: 'POST',
 		body: JSON.stringify({ content: 'Now online :)', username: 'raspberry-pi', 'avatar_url': 'https://i.imgur.com/5oiMjdI.png' }),
 		headers: { 'Content-Type': 'application/json' }
