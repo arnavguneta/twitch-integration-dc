@@ -36,6 +36,19 @@ const client = new tmi.Client({
 
 client.connect()
 
+client.on('streaming', async (channel, username, title) => {
+	try {
+		const res = await fetch(process.env.WEBHOOK_URL, {
+			method: 'POST',
+			body: JSON.stringify({ content: `${username} just went live!`, username: username, 'avatar_url': profiles[username] }),
+			headers: { 'Content-Type': 'application/json' }
+		});
+	} catch {
+		console.log('error sending live notif')
+	}
+	
+});
+
 client.on('message', async (channel, tags, message, self) => {
 	if (tags.badges?.hasOwnProperty('broadcaster')) {
 		message = fix_message(message)
