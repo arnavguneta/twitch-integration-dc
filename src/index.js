@@ -20,7 +20,7 @@ setInterval(get_emotes, 1800000)
 
 const fix_message = (message) => {
 	let msg = message.split(' ')
-	for (let i=0; i < msg.length; i++) {
+	for (let i = 0; i < msg.length; i++) {
 		for (let emote of emotes) {
 			if (msg[i] === emote.name) {
 				msg[i] = `<${(emote.animated) ? 'a' : ''}:${emote.name}:${emote.id}>`
@@ -36,19 +36,6 @@ const client = new tmi.Client({
 
 client.connect()
 
-client.on('streaming', async (channel, username, title) => {
-	try {
-		const res = await fetch(process.env.WEBHOOK_URL, {
-			method: 'POST',
-			body: JSON.stringify({ content: `${username} just went live!`, username: username, 'avatar_url': profiles[username] }),
-			headers: { 'Content-Type': 'application/json' }
-		});
-	} catch {
-		console.log('error sending live notif')
-	}
-	
-});
-
 client.on('message', async (channel, tags, message, self) => {
 	console.log(tags['streaming'], tags)
 	if (tags.badges?.hasOwnProperty('broadcaster')) {
@@ -61,10 +48,34 @@ client.on('message', async (channel, tags, message, self) => {
 	}
 });
 
-(async() => {
+// notify webhook on startup
+(async () => {
 	const res = await fetch(process.env.MONITOR_WEBHOOK, {
 		method: 'POST',
 		body: JSON.stringify({ content: 'Now online :)', username: 'raspberry-pi', 'avatar_url': 'https://i.imgur.com/5oiMjdI.png' }),
 		headers: { 'Content-Type': 'application/json' }
 	});
 })();
+
+// check live status
+function checkStreamStatus(streamer) {
+	console.log('Checking status of ' + streamer)
+	client.api({
+		url: `https://api.twitch.tv/helix/streams?user_login=${streamer}`
+	}, (err, res, body) => {
+		if (err) {
+			console.error(err);
+			return;
+		}
+		const streams = body.data;
+		if (streams.length) {
+			fetch(process.env.WEBHOOK_URL, {
+				method: 'POST',
+				body: JSON.stringify({ content: `${streamer} just went live!`, username: streamer, 'avatar_url': profiles[streamer] }),
+				headers: { 'Content-Type': 'application/json' }
+			}).catch(notif_err => console.log('Error while sending live notif'));
+		}
+	});
+}
+
+for (let streamer of LOG_CHANNELS) setInterval(checkStreamStatus(streamer), 60000);
