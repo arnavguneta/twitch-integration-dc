@@ -50,6 +50,7 @@ client.on('streaming', async (channel, username, title) => {
 });
 
 client.on('message', async (channel, tags, message, self) => {
+	console.log(tags['streaming'], tags)
 	if (tags.badges?.hasOwnProperty('broadcaster')) {
 		message = fix_message(message)
 		const res = await fetch(process.env.WEBHOOK_URL, {
