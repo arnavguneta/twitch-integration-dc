@@ -57,13 +57,10 @@ client.on('message', async (channel, tags, message, self) => {
 	});
 })();
 
-
-
 client.on('connected', () => {
 	// check live status
 	function checkStreamStatus(streamer) {
 		console.log('Checking status of ' + streamer)
-		if (!client.isConnected()) return
 		client.api({
 			url: `https://api.twitch.tv/helix/streams?user_login=${streamer}`
 		}, (err, res, body) => {
@@ -82,6 +79,7 @@ client.on('connected', () => {
 		});
 	}
 
-	for (let streamer of LOG_CHANNELS) setInterval(checkStreamStatus(streamer), 60000);
+	for (let streamer of LOG_CHANNELS) {
+		setInterval(() => checkStreamStatus(streamer), 60000);
+	}
 });
-
