@@ -63,6 +63,7 @@ client.on('connected', () => {
 	// check live status
 	function checkStreamStatus(streamer) {
 		console.log('Checking status of ' + streamer)
+		if (!client.isConnected()) return
 		client.api({
 			url: `https://api.twitch.tv/helix/streams?user_login=${streamer}`
 		}, (err, res, body) => {
