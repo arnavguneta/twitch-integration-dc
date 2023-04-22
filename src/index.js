@@ -57,25 +57,30 @@ client.on('message', async (channel, tags, message, self) => {
 	});
 })();
 
-// check live status
-function checkStreamStatus(streamer) {
-	console.log('Checking status of ' + streamer)
-	client.api({
-		url: `https://api.twitch.tv/helix/streams?user_login=${streamer}`
-	}, (err, res, body) => {
-		if (err) {
-			console.error(err);
-			return;
-		}
-		const streams = body.data;
-		if (streams.length) {
-			fetch(process.env.WEBHOOK_URL, {
-				method: 'POST',
-				body: JSON.stringify({ content: `${streamer} just went live!`, username: streamer, 'avatar_url': profiles[streamer] }),
-				headers: { 'Content-Type': 'application/json' }
-			}).catch(notif_err => console.log('Error while sending live notif'));
-		}
-	});
-}
 
-for (let streamer of LOG_CHANNELS) setInterval(checkStreamStatus(streamer), 60000);
+
+client.on('connected', () => {
+	// check live status
+	function checkStreamStatus(streamer) {
+		console.log('Checking status of ' + streamer)
+		client.api({
+			url: `https://api.twitch.tv/helix/streams?user_login=${streamer}`
+		}, (err, res, body) => {
+			if (err) {
+				console.error(err);
+				return;
+			}
+			const streams = body.data;
+			if (streams.length) {
+				fetch(process.env.WEBHOOK_URL, {
+					method: 'POST',
+					body: JSON.stringify({ content: `${streamer} just went live!`, username: streamer, 'avatar_url': profiles[streamer] }),
+					headers: { 'Content-Type': 'application/json' }
+				}).catch(notif_err => console.log('Error while sending live notif'));
+			}
+		});
+	}
+
+	for (let streamer of LOG_CHANNELS) setInterval(checkStreamStatus(streamer), 60000);
+});
+
