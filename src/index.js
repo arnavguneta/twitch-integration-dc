@@ -1,7 +1,7 @@
 const tmi = require('tmi.js')
 const fetch = require('node-fetch')
 const Emote = require("./models/emotes")
-
+const configs = require("./config.json")
 require('./db/mongoose')
 
 let emotes = []
@@ -11,13 +11,19 @@ const profiles = {
 	"zoil": "https://cdn.betterttv.net/emote/620ae6fd06fd6a9f5be48c01/3x"
 }
 
-const LOG_CHANNELS = process.env.CHAT_LISTENER.split(',')
+const LOG_CHANNELS = configs.map(channel => channel.name)
 
 const get_emotes = async () => { emotes = await Emote.find({}) }
 
 get_emotes()
 setInterval(get_emotes, 1800000)
 
+const get_channel = (name) => {
+	for (const channel of configs) 
+		if (channel.name === name) return channel
+}
+
+// emotes per channel instead of all channel emotes
 const fix_message = (message) => {
 	let msg = message.split(' ')
 	for (let i = 0; i < msg.length; i++) {
@@ -39,11 +45,14 @@ client.connect()
 client.on('message', async (channel, tags, message, self) => {
 	if (tags.badges?.hasOwnProperty('broadcaster')) {
 		message = fix_message(message)
-		const res = await fetch(process.env.WEBHOOK_URL, {
-			method: 'POST',
-			body: JSON.stringify({ content: message, username: tags['display-name'], 'avatar_url': profiles[tags.username] }),
-			headers: { 'Content-Type': 'application/json' }
-		});
+		channel = get_channel(tags['display-name'])
+		for (const webhook of channel.webhooks) {
+			const res = await fetch(webhook, {
+				method: 'POST',
+				body: JSON.stringify({ content: message, username: tags['display-name'], 'avatar_url': profiles[tags.username] }),
+				headers: { 'Content-Type': 'application/json' }
+			});
+		}
 	}
 });
 
@@ -55,30 +64,3 @@ client.on('message', async (channel, tags, message, self) => {
 		headers: { 'Content-Type': 'application/json' }
 	});
 })();
-
-// client.on('connected', () => {
-// 	// check live status
-// 	function checkStreamStatus(streamer) {
-// 		console.log('Checking status of ' + streamer)
-// 		client.api({
-// 			url: `https://api.twitch.tv/helix/streams?user_login=${streamer}`
-// 		}, (err, res, body) => {
-// 			if (err) {
-// 				console.error(err);
-// 				return;
-// 			}
-// 			const streams = body.data;
-// 			if (streams.length) {
-// 				fetch(process.env.WEBHOOK_URL, {
-// 					method: 'POST',
-// 					body: JSON.stringify({ content: `${streamer} just went live!`, username: streamer, 'avatar_url': profiles[streamer] }),
-// 					headers: { 'Content-Type': 'application/json' }
-// 				}).catch(notif_err => console.log('Error while sending live notif'));
-// 			}
-// 		});
-// 	}
-
-// 	for (let streamer of LOG_CHANNELS) {
-// 		setInterval(() => checkStreamStatus(streamer), 60000);
-// 	}
-// });
