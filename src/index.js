@@ -59,7 +59,7 @@ client.on('message', async (channel, tags, message, self) => {
 		for (const webhook of channel.webhooks) {
 			const res = await fetch(webhook, {
 				method: 'POST',
-				body: JSON.stringify({ content: message + ' test123', username: tags['display-name'], 'avatar_url': profiles[tags.username] }),
+				body: JSON.stringify({ content: message, username: tags['display-name'], 'avatar_url': profiles[tags.username] }),
 				headers: { 'Content-Type': 'application/json' }
 			});
 		}
