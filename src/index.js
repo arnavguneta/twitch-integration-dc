@@ -22,7 +22,6 @@ const get_emotes = async () => {
 		else 
 			emotes[emote.channel.id] = [emote]
 	}
-	console.log(emotes)
 }
 
 get_emotes()
