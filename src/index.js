@@ -15,7 +15,7 @@ const profiles = {
 const LOG_CHANNELS = configs.map(channel => channel.name)
 
 const get_emotes = async () => { 
-	let all_emotes = await TwitchEmote.find({}) 
+	let all_emotes = await TwitchEmote.find({'data.active': true}) 
 	for (let emote of all_emotes) {
 		if (emotes.hasOwnProperty(emote.channel.id))
 			emotes[emote.channel.id].push(emote)
