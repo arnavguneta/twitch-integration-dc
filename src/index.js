@@ -6,12 +6,6 @@ require('./db/mongoose')
 
 // collection of all emotes by channel id
 let emotes = {}
-const profiles = {
-	"coolkidarnie": "https://static-cdn.jtvnw.net/jtv_user_pictures/1d0e8c09-f229-4161-9cc0-78a77a593084-profile_image-70x70.png",
-	// "erobb221": "https://cdn.betterttv.net/emote/5fc53fdecac2fb4621e48bb0/3x",
-	"erobb221": "https://cdn.7tv.app/emote/6518ec294ac4db8fed84a1a6/4x.png",
-	"zoil": "https://cdn.betterttv.net/emote/620ae6fd06fd6a9f5be48c01/3x"
-}
 
 const LOG_CHANNELS = configs.map(channel => channel.name)
 
@@ -60,7 +54,7 @@ client.on('message', async (channel, tags, message, self) => {
 		for (const webhook of channel.webhooks) {
 			const res = await fetch(webhook, {
 				method: 'POST',
-				body: JSON.stringify({ content: message, username: tags['display-name'], 'avatar_url': profiles[tags.username] }),
+				body: JSON.stringify({ content: message, username: tags['display-name'], 'avatar_url': channel.profile }),
 				headers: { 'Content-Type': 'application/json' }
 			});
 		}
