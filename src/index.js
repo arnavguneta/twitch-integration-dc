@@ -8,7 +8,8 @@ require('./db/mongoose')
 let emotes = {}
 const profiles = {
 	"coolkidarnie": "https://static-cdn.jtvnw.net/jtv_user_pictures/1d0e8c09-f229-4161-9cc0-78a77a593084-profile_image-70x70.png",
-	"erobb221": "https://cdn.betterttv.net/emote/5fc53fdecac2fb4621e48bb0/3x",
+	// "erobb221": "https://cdn.betterttv.net/emote/5fc53fdecac2fb4621e48bb0/3x",
+	"erobb221": "https://cdn.7tv.app/emote/6518ec294ac4db8fed84a1a6/4x.png",
 	"zoil": "https://cdn.betterttv.net/emote/620ae6fd06fd6a9f5be48c01/3x"
 }
 
