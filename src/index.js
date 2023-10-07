@@ -21,7 +21,7 @@ const get_emotes = async () => {
 }
 
 get_emotes()
-setInterval(get_emotes, 1800000)
+setInterval(get_emotes, 300000)
 
 const get_channel = (name) => {
 	for (const channel of configs) 
