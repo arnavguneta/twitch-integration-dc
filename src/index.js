@@ -10,14 +10,20 @@ let emotes = {}
 const LOG_CHANNELS = configs.map(channel => channel.name)
 
 const get_emotes = async () => { 
-	let all_emotes = await TwitchEmote.find({'data.active': true}) 
+	let all_emotes = [];
+	try {
+		require('./db/mongoose')
+		all_emotes = await TwitchEmote.find({'data.active': true})
+	} catch (error) {
+		console.error(`Error occurred refreshing emotes: ${error}`)
+	}
 	for (let emote of all_emotes) {
 		if (emotes.hasOwnProperty(emote.channel.id))
 			emotes[emote.channel.id].push(emote)
 		else 
 			emotes[emote.channel.id] = [emote]
 	}
-	console.log(emotes)
+	console.log(`emote fetched len: ${all_emotes.length}`)
 }
 
 get_emotes()
@@ -31,8 +37,9 @@ const get_channel = (name) => {
 // emotes per channel instead of all channel emotes
 const fix_message = (message, channel_id) => {
 	let msg = message.split(' ')
+	let channel_emotes = emotes[channel_id] || []
 	for (let i = 0; i < msg.length; i++) {
-		for (let emote of emotes[channel_id]) {
+		for (let emote of channel_emotes) {
 			if (msg[i] === emote.name) {
 				msg[i] = `<${(emote.animated) ? 'a' : ''}:${emote.name}:${emote.id}>`
 			}
